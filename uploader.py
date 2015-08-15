@@ -183,9 +183,9 @@ class MotionUploader:
         a, b = os.path.split(p)
         return (self._split_path(a) if len(a) and len(b) else []) + [b]
 
-    def upload_photo(self, photo_file_path):
+    def upload_photo(self, relative_file_path, absolute_file_path):
         """Upload a snapshot to the specified folder. Remove duplicates."""
-        splitted_path = self._split_path(photo_file_path)
+        splitted_path = self._split_path(relative_file_path)
         file_name = splitted_path[len(splitted_path) - 1]
 
         folder_id = 0
@@ -196,8 +196,9 @@ class MotionUploader:
                 folder_id = self._get_subfolder_id(folder_id, splitted_path[i])
 
         # Now upload the photo
-        media = MediaFileUpload(photo_file_path, mimetype='image/jpeg')
-        self.drive_service.files().insert(media_body=media, body={'title':file_name, 'parents':[{u'id': folder_id}]}).execute()          
+        media = MediaFileUpload(absolute_file_path, mimetype='image/jpeg')
+        meta = {'title': file_name, 'parents': [{u'id': folder_id}]}
+        self.drive_service.files().insert(media_body=media, body=meta).execute()
 
 
 if __name__ == '__main__':
