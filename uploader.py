@@ -188,11 +188,9 @@ class MotionUploader:
         splitted_path = self._split_path(relative_file_path)
         file_name = splitted_path[len(splitted_path) - 1]
 
-        folder_id = 0
+        folder_id = self._get_folder_id(self.folder)
         for i in range(len(splitted_path) - 1):
-            if splitted_path[i] == '.':
-                folder_id = self._get_folder_id(self.folder)
-            else:
+            if splitted_path[i] != '.':
                 folder_id = self._get_subfolder_id(folder_id, splitted_path[i])
 
         # Now upload the photo

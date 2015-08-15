@@ -41,8 +41,8 @@ class UploaderEventHandler(FileSystemEventHandler):
         MotionUploader(self.config_path).create_folder(path)
 
     def _create_file(self, path):
-        absolute_path = os.path.normpath(os.path.join(self.root_path, path))
-        MotionUploader(self.config_path).upload_photo(path, absolute_path)
+        relative_path = os.path.relpath(path, self.root_path)
+        MotionUploader(self.config_path).upload_photo(relative_path, path)
 
 
 if __name__ == "__main__":
