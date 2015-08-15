@@ -38,7 +38,9 @@ class UploaderEventHandler(FileSystemEventHandler):
             print "Unable to upload change: ", e
 
     def _create_dir(self, path):
-        MotionUploader(self.config_path).create_folder(path)
+        relative_path = os.path.relpath(path, self.root_path)
+        print relative_path
+        MotionUploader(self.config_path).create_folder(relative_path)
 
     def _create_file(self, path):
         relative_path = os.path.relpath(path, self.root_path)

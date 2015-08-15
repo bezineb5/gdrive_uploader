@@ -159,16 +159,33 @@ class MotionUploader:
         public_url = 'https://googledrive.com/host/%s/' % folder_id
         print public_url + os.path.basename(snapshot_file_path)          
 
-    def create_folder(self, new_folder_path):
-        """Create a new subfolder to the root folder."""
-        folder_id = self._get_folder_id(self.folder)
-
+    def _create_folder_in_parent(self, folder_name, parent_id):
         meta = {
-          "title": os.path.basename(new_folder_path),
-          "parents": [{u'id': folder_id}],
+          "title": folder_name,
+          "parents": [{u'id': parent_id}],
           "mimeType": "application/vnd.google-apps.folder"
         }
         response = self.drive_service.files().insert(body=meta).execute()
+
+    def create_folder(self, new_folder_path):
+        """Create a new subfolder to the root folder."""
+        splitted_path = self._split_path(new_folder_path)
+        file_name = splitted_path[len(splitted_path) - 1]
+
+        folder_id = self._get_folder_id(self.folder)
+        for i in range(len(splitted_path) - 1):
+            if splitted_path[i] != '.':
+                folder_id = self._get_or_create_subfolder_id(folder_id, splitted_path[i])
+
+        self._create_folder_in_parent(file_name, folder_id)
+
+    def _get_or_create_subfolder_id(self, root_folder_id, sub_folder):
+        try:
+            return self._get_subfolder_id(root_folder_id, sub_folder)
+        except:
+            print 'Could not find the %s folder' % sub_folder
+            self._create_folder_in_parent(sub_folder, root_folder_id)
+            return self._get_subfolder_id(root_folder_id, sub_folder)
 
     def _get_subfolder_id(self, root_folder_id, sub_folder):
         """Find and return the id of the folder given the title."""
@@ -191,7 +208,7 @@ class MotionUploader:
         folder_id = self._get_folder_id(self.folder)
         for i in range(len(splitted_path) - 1):
             if splitted_path[i] != '.':
-                folder_id = self._get_subfolder_id(folder_id, splitted_path[i])
+                folder_id = self._get_or_create_subfolder_id(folder_id, splitted_path[i])
 
         # Now upload the photo
         media = MediaFileUpload(absolute_file_path, mimetype='image/jpeg')
