@@ -18,21 +18,24 @@ class UploaderEventHandler(FileSystemEventHandler):
         self.config_path = config_file_path
 
     def on_created(self, event):
-        if event.is_directory:
-            # Create directory
-            print "Created directory: ", event.src_path
-            self._create_dir(event.src_path)
-        else:
-            paths = []
-            if event.src_path:
-                paths.append(unicode_paths.decode(event.src_path))
+        try:
+            if event.is_directory:
+                # Create directory
+                print "Created directory: ", event.src_path
+                self._create_dir(event.src_path)
+            else:
+                paths = []
+                if event.src_path:
+                    paths.append(unicode_paths.decode(event.src_path))
 
-            if match_any_paths(paths,
-                               included_patterns=self.patterns,
-                               case_sensitive=False):
+                if match_any_paths(paths,
+                                   included_patterns=self.patterns,
+                                   case_sensitive=False):
 
-                print "Created file: ", event.src_path
-                self._create_file(event.src_path)
+                    print "Created file: ", event.src_path
+                    self._create_file(event.src_path)
+        except Exception as e:
+            print "Unable to upload change: ", e
 
     def _create_dir(self, path):
         MotionUploader(self.config_path).create_folder(path)
