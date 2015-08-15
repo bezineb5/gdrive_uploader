@@ -169,13 +169,7 @@ class MotionUploader:
 
     def create_folder(self, new_folder_path):
         """Create a new subfolder to the root folder."""
-        splitted_path = self._split_path(new_folder_path)
-        file_name = splitted_path[len(splitted_path) - 1]
-
-        folder_id = self._get_folder_id(self.folder)
-        for i in range(len(splitted_path) - 1):
-            if splitted_path[i] != '.':
-                folder_id = self._get_or_create_subfolder_id(folder_id, splitted_path[i])
+        folder_id, file_name = self._get_folder_id_from_path(new_folder_path)
 
         self._create_folder_in_parent(file_name, folder_id)
 
@@ -200,15 +194,21 @@ class MotionUploader:
         a, b = os.path.split(p)
         return (self._split_path(a) if len(a) and len(b) else []) + [b]
 
-    def upload_photo(self, relative_file_path, absolute_file_path):
-        """Upload a snapshot to the specified folder. Remove duplicates."""
-        splitted_path = self._split_path(relative_file_path)
+    def _get_folder_id_from_path(self, path):
+        splitted_path = self._split_path(path)
         file_name = splitted_path[len(splitted_path) - 1]
 
         folder_id = self._get_folder_id(self.folder)
-        for i in range(len(splitted_path) - 1):
-            if splitted_path[i] != '.':
-                folder_id = self._get_or_create_subfolder_id(folder_id, splitted_path[i])
+        for segment in splitted_path[:-1]:
+            if segment != '.':
+                folder_id = self._get_or_create_subfolder_id(folder_id, segment)
+
+        return folder_id, file_name
+
+
+    def upload_photo(self, relative_file_path, absolute_file_path):
+        """Upload a snapshot to the specified folder. Remove duplicates."""
+        folder_id, file_name = self._get_folder_id_from_path(relative_file_path)
 
         # Now upload the photo
         media = MediaFileUpload(absolute_file_path, mimetype='image/jpeg')

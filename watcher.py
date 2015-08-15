@@ -39,7 +39,6 @@ class UploaderEventHandler(FileSystemEventHandler):
 
     def _create_dir(self, path):
         relative_path = os.path.relpath(path, self.root_path)
-        print relative_path
         MotionUploader(self.config_path).create_folder(relative_path)
 
     def _create_file(self, path):
