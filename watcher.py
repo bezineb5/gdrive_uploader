@@ -9,7 +9,7 @@ from uploader import MotionUploader
 
 
 class UploaderEventHandler(FileSystemEventHandler):
-    patterns = ["*.jpg", "*.mpo", "*.xmp"]
+    patterns = ["*.jpg", "*.mpo"]
 
     def __init__(self, root_path, config_file_path):
         super(UploaderEventHandler, self).__init__()
