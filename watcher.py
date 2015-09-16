@@ -6,16 +6,27 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.utils import unicode_paths
 from pathtools.patterns import match_any_paths
 from uploader import MotionUploader
+import ConfigParser
 
 
 class UploaderEventHandler(FileSystemEventHandler):
-    patterns = ["*.jpg", "*.mpo"]
+    patterns = ["*.*"]
 
     def __init__(self, root_path, config_file_path):
         super(UploaderEventHandler, self).__init__()
         # Load config
         self.root_path = root_path
         self.config_path = config_file_path
+
+        config = ConfigParser.ConfigParser()
+        config.read(config_file_path)
+
+        # OAuth folder
+        try:
+            raw_pattern = config.get('watcher', 'pattern')
+            self.patterns = raw_pattern.split(',')
+        except:
+            pass
 
     def on_created(self, event):
         try:
